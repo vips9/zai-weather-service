@@ -9,7 +9,7 @@ It uses WeatherStack first, falls back to OpenWeatherMap on failure, caches resu
 
 - **Java 8**
 - **Maven 3.6+**
-- Two environment variables with your API keys:
+-If your API keys expire, please log in to the respective provider’s dashboard (WeatherStack or OpenWeatherMap) to generate new keys, then update the WEATHERSTACK_KEY and OPENWEATHERMAP_KEY accordingly.
   ```bash
   export WEATHERSTACK_KEY=<your WeatherStack key>
   export OPENWEATHERMAP_KEY=<your OpenWeatherMap key>
