@@ -12,46 +12,37 @@ import java.util.concurrent.ConcurrentMap;
 
 @Service
 public class WeatherService {
-  private final WeatherClient primary;
-  private final WeatherClient fallback;
-
-  private final Cache<String, WeatherResponse> cache;
-  private final ConcurrentMap<String, WeatherResponse> staleMap = new ConcurrentHashMap<>();
-
+  private final WeatherClient primary, fallback;
+  private final ConcurrentMap<String,WeatherResponse> staleMap = new ConcurrentHashMap<>();
 
   public WeatherService(
           @Qualifier("weatherStackClient") WeatherClient primary,
-          @Qualifier("openWeatherMapClient") WeatherClient fallback,
-          @Qualifier("weatherCache") Cache<String, WeatherResponse> cache
+          @Qualifier("openWeatherMapClient") WeatherClient fallback
   ) {
     this.primary = primary;
     this.fallback = fallback;
-    this.cache   = cache;
   }
 
-
+  @Cacheable(value="weather", key="#city")
   public WeatherResponse getWeather(String city) {
-    WeatherResponse resp = cache.getIfPresent(city);
-    if (resp == null) {
+    try {
+      WeatherResponse r = primary.getWeather(city);
+      staleMap.put(city, r);
+      return r;
+    } catch (Exception primaryEx) {
       try {
-        resp = primary.getWeather(city);
-      } catch (Exception primaryEx) {
-        try {
-          resp = fallback.getWeather(city);
-        } catch (Exception fallbackEx) {
-          WeatherResponse stale = staleMap.get(city);
-          if (stale != null) {
-            return stale;
-          }
-          throw new ExternalServiceException(
-                  "All weather providers failed and no cached data",
-                  fallbackEx
-          );
+        WeatherResponse r = fallback.getWeather(city);
+        staleMap.put(city, r);
+        return r;
+      } catch (Exception fallbackEx) {
+        WeatherResponse stale = staleMap.get(city);
+        if (stale != null) {
+          return stale;
         }
+        throw new ExternalServiceException(
+                "All weather providers failed and no cached data", fallbackEx
+        );
       }
-      cache.put(city, resp);
-      staleMap.put(city, resp);
     }
-    return resp;
   }
 }

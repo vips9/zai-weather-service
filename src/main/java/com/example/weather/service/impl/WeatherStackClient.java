@@ -6,12 +6,14 @@ import com.example.weather.service.WeatherClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
 @Component("weatherStackClient")
+@Primary
 public class WeatherStackClient implements WeatherClient {
   private static final Logger log = LoggerFactory.getLogger(WeatherStackClient.class);
   private final RestTemplate rest;
