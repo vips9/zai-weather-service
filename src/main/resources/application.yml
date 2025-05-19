@@ -1,0 +1,10 @@
+server:
+  port: 8080
+
+weather:
+  stack:
+    url: http://api.weatherstack.com/current
+    accessKey: 86339b619d2fd622a2bfe955812e24ab
+  openweathermap:
+    url: http://api.openweathermap.org/data/2.5/weather
+    apiKey: 4d532fa890d23b5a8cf4d12e7d750640
